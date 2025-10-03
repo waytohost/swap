@@ -13,7 +13,7 @@ fi
 ## Intro
 echo "Welcome to Swap setup script! This script will automatically setup a swap file and enable it."
 echo "Root access is required, please run as root or enter sudo password." 
-echo "Source is @ https://github.com/Cretezy/Swap" 
+echo "Source is @ https://github.com/waytohost/Swap" 
 echo
 
 ## Setup variables

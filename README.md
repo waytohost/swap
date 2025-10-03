@@ -14,12 +14,12 @@ First, download the main script using `wget` or `curl`:
 
 **Using wget:**
 ```bash
-wget https://raw.githubusercontent.com/Cretezy/Swap/master/swap.sh -O swap
+wget https://raw.githubusercontent.com/waytohost/Swap/master/swap.sh -O swap
 ```
 
 **Using curl:**
 ```bash
-curl https://raw.githubusercontent.com/Cretezy/Swap/master/swap.sh -o swap
+curl https://raw.githubusercontent.com/waytohost/Swap/master/swap.sh -o swap
 ```
 
 ### Step 2: Run the Script
@@ -191,7 +191,7 @@ The automated script typically handles:
 
 ### Quick Setup:
 ```bash
-wget https://raw.githubusercontent.com/Cretezy/Swap/master/swap.sh -O swap
+wget https://raw.githubusercontent.com/waytohost/Swap/master/swap.sh -O swap
 sh swap 2G
 ```
 

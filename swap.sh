@@ -3,9 +3,9 @@
 # Smart Swap Manager — Auto detect, resize, or create swap
 # Works in sh or bash
 # Usage:
-#   ./swap_manager_fixed.sh 8192
-#   ./swap_manager_fixed.sh 4G
-#   ./swap_manager_fixed.sh 4G /usr/swpDSK
+#   ./swap.sh 8192
+#   ./swap.sh 4G
+#   ./swap.sh 4G /usr/swpDSK
 # ============================================================
 
 set -e
@@ -79,7 +79,7 @@ else
 fi
 
 echo
-echo "=== Current Swap Info ==="
+echo "==== Current Swap Info ===="
 swapon --show
 free -h
 echo "=========================="

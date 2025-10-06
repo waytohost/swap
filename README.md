@@ -33,6 +33,11 @@ sh swap <size>
 ```bash
 sh swap 4G
 ```
+**Example 2 Quick Setup (create 4GB swap):**
+```bash
+wget https://raw.githubusercontent.com/waytohost/swap/main/swap.sh -O swap && sh swap 4G
+```
+
 
 ### Step 3: Custom Location (Optional)
 The default path for the swap file is `/swapfile`. To change the location, add the file path to the command:

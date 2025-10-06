@@ -205,5 +205,9 @@ sh swap 2G
 free -h
 swapon --show
 ```
+### Quick Setup 2:
+```bash
+wget https://raw.githubusercontent.com/waytohost/swap/main/swap.sh -O swap && sh swap 4G
+```
 
 This simple swap setup ensures your Linux system has adequate virtual memory for optimal performance! 🚀

@@ -19,7 +19,7 @@ if [ $# -lt 1 ]; then
 fi
 
 SWAP_SIZE=$1
-SWAP_PATH=${2:-/swapfile}
+SWAP_PATH=${2:-/usr/swpDSK}
 
 # If only a number provided, treat as MB
 case "$SWAP_SIZE" in
@@ -27,27 +27,50 @@ case "$SWAP_SIZE" in
     *) SWAP_SIZE="${SWAP_SIZE}M" ;;
 esac
 
+# Get filesystem type
+FS_TYPE=$(df -T "$(dirname "$SWAP_PATH")" | awk 'NR==2 {print $2}')
+
 echo "🔍 Checking existing swap configuration..."
 EXISTING_SWAP=$(swapon --show=NAME --noheadings | grep -E '^/.*' || true)
+
+# Function to create swap file with filesystem-specific method
+create_swap_file() {
+    local path=$1
+    local size=$2
+    
+    echo "📁 Creating swap file on $FS_TYPE filesystem..."
+    
+    # Remove existing file if any
+    rm -f "$path"
+    
+    if [ "$FS_TYPE" = "xfs" ]; then
+        echo "⚙️  Using XFS-optimized method..."
+        # Convert size to MB for dd
+        SIZE_MB=$(echo "$size" | sed 's/[^0-9]//g')
+        dd if=/dev/zero of="$path" bs=1M count="$SIZE_MB" status=progress
+        chattr +C "$path" 2>/dev/null || echo "⚠️  chattr not available, continuing..."
+    else
+        # Try fallocate first, fall back to dd
+        if ! fallocate -l "$size" "$path" 2>/dev/null; then
+            echo "⚙️  'fallocate' failed — using 'dd' method..."
+            SIZE_MB=$(echo "$size" | sed 's/[^0-9]//g')
+            dd if=/dev/zero of="$path" bs=1M count="$SIZE_MB" status=progress
+        fi
+    fi
+    
+    chmod 600 "$path"
+}
 
 # --- If swap already exists ---
 if [ -n "$EXISTING_SWAP" ]; then
     echo "✅ Existing swap detected: $EXISTING_SWAP"
     echo "Resizing swap to $SWAP_SIZE..."
 
-    swapoff "$EXISTING_SWAP"
-
-    # Truncate old file first (fix shrinking issue)
-    truncate -s 0 "$EXISTING_SWAP"
-
-    # Resize or recreate swap file
-    if ! fallocate -l "$SWAP_SIZE" "$EXISTING_SWAP" 2>/dev/null; then
-        echo "⚙️  'fallocate' failed — using 'dd' method..."
-        SIZE_MB=$(echo "$SWAP_SIZE" | grep -oE '[0-9]+')
-        dd if=/dev/zero of="$EXISTING_SWAP" bs=1M count="$SIZE_MB" status=progress
-    fi
-
-    chmod 600 "$EXISTING_SWAP"
+    swapoff "$EXISTING_SWAP" 2>/dev/null || true
+    
+    # Create new swap file with proper method
+    create_swap_file "$EXISTING_SWAP" "$SWAP_SIZE"
+    
     mkswap "$EXISTING_SWAP"
     swapon "$EXISTING_SWAP"
 
@@ -61,13 +84,9 @@ if [ -n "$EXISTING_SWAP" ]; then
 else
     echo "⚠️ No existing swap detected. Creating new swap at $SWAP_PATH ($SWAP_SIZE)..."
 
-    if ! fallocate -l "$SWAP_SIZE" "$SWAP_PATH" 2>/dev/null; then
-        echo "⚙️  'fallocate' failed — using 'dd' method..."
-        SIZE_MB=$(echo "$SWAP_SIZE" | grep -oE '[0-9]+')
-        dd if=/dev/zero of="$SWAP_PATH" bs=1M count="$SIZE_MB" status=progress
-    fi
-
-    chmod 600 "$SWAP_PATH"
+    # Create new swap file with proper method
+    create_swap_file "$SWAP_PATH" "$SWAP_SIZE"
+    
     mkswap "$SWAP_PATH"
     swapon "$SWAP_PATH"
 
